@@ -1,32 +1,53 @@
 import { useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 import { AuthContext } from "../../Providers/AuthProvider";
+import Swal from 'sweetalert2'
 
 const Checkout = () => {
-    const {user} = useContext(AuthContext)
+  const { user } = useContext(AuthContext);
   const service = useLoaderData();
-  const { title, _id , price} = service;
-  const handleBookService = event=>{
-    event.preventDefault()
+  const { title, _id, price, img } = service;
+  const handleBookService = (event) => {
+    event.preventDefault();
     const form = event.target;
     const name = form.name.value;
     const date = form.date.value;
     const email = user?.email;
-    const order={
-        customerName: name,
-        email,
-        date,
-        service: _id,
-        price: price
-    }
-    console.log(order);
-  }
+    const booking = {
+      customerName: name,
+      email,
+      img,
+      date,
+      service_id: _id,
+      service: title,
+      price: price,
+    };
+    fetch("http://localhost:5000/bookings", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(booking),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.insertedId) {
+          Swal.fire({
+            title: 'Service book successfully!',
+            text: 'Do you want to continue',
+            icon: 'success',
+            confirmButtonText: 'Ok'
+          })
+        }
+      });
+  };
   return (
-          <div>
-            <h2 className="text-center text-3xl">Book service</h2>
-            <div className="card-body">
-            <form onSubmit={handleBookService}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h2 className="text-center text-3xl">Book service</h2>
+      <div className="card-body">
+        <form onSubmit={handleBookService}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Name</span>
@@ -69,17 +90,21 @@ const Checkout = () => {
               <input
                 type="text"
                 placeholder="Price"
-                defaultValue={'$'+price}
+                defaultValue={"$" + price}
                 className="input input-bordered"
               />
             </div>
-            </div>
-            <div className="form-control mt-6">
-              <input className="btn bg-[#FF3811] border-none" type="submit" value="Order Confirm" />
-            </div>
-            </form>
           </div>
+          <div className="form-control mt-6">
+            <input
+              className="btn bg-[#FF3811] border-none"
+              type="submit"
+              value="Order Confirm"
+            />
           </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

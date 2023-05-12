@@ -1,26 +1,33 @@
 import { Link } from "react-router-dom";
 import logo from "../../../src/assets/logo.svg";
+import { useContext } from "react";
+import { AuthContext } from "../../Providers/AuthProvider";
 
-const navItems = (
-  <>
-    <li>
-      <Link to={'/'}>Home</Link>
-    </li>
-    <li>
-      <Link>About</Link>
-    </li>
-    <li>
-      <Link>Services</Link>
-    </li>
-    <li>
-      <Link>Blog</Link>
-    </li>
-    <li>
-      <Link>Contact</Link>
-    </li>
-  </>
-);
 const NavBar = () => {
+  const { user, logOut } = useContext(AuthContext);
+  const navItems = (
+    <>
+      <li>
+        <Link to={"/"}>Home</Link>
+      </li>
+      <li>
+        <Link>About</Link>
+      </li>
+      <li>
+        <Link>Services</Link>
+      </li>
+      {user && (
+        <li>
+          <Link to={'/bookings'}>My Bookings</Link>
+        </li>
+      )}
+    </>
+  );
+  const handleLogout = () => {
+    logOut()
+      .then(() => {})
+      .catch((error) => console.log(error));
+  };
   return (
     <div className="navbar bg-base-100 h-24 mb-4">
       <div className="navbar-start">
@@ -44,19 +51,33 @@ const NavBar = () => {
           <ul
             tabIndex={0}
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-          >{navItems}</ul>
+          >
+            {navItems}
+          </ul>
         </div>
         <Link to={"/"} className="normal-case text-xl">
           <img src={logo} alt="" />
         </Link>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          {navItems}
-        </ul>
+        <ul className="menu menu-horizontal px-1">{navItems}</ul>
       </div>
       <div className="navbar-end">
-      <button className="btn btn-outline btn-error hover:text-white">appointment</button>
+        {user?.email ? (
+          <button
+            onClick={handleLogout}
+            className="btn btn-outline btn-error hover:text-white mr-2"
+          >
+            Log out
+          </button>
+        ) : (
+          <button className="btn btn-outline btn-error hover:text-white mr-2">
+            <Link to={"/login"}>Login</Link>
+          </button>
+        )}
+        <button className="btn btn-outline btn-error hover:text-white">
+          appointment
+        </button>
       </div>
     </div>
   );
